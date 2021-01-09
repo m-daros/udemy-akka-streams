@@ -22,15 +22,7 @@ object MaterializeComplexGraphs extends App {
     println ( value )
   }
 
-  val myFlow = Flow.fromGraph ( GraphDSL.create () { implicit builder: GraphDSL.Builder [ NotUsed ] =>
-
-    import GraphDSL.Implicits._
-
-    val multiplier = Flow [Int].map ( _ * 10 )
-    val multiplierShape = builder.add ( multiplier )
-
-    FlowShape ( multiplierShape.in, multiplierShape.out )
-  } )
+  val myFlow = Flow [Int].map ( _ * 10 )
 
   /*
       Exercise: define a method that takes a Flow and return the same Flow that returns as Materialized Value a Future [Int] the count of values that flows in it
