@@ -1,6 +1,5 @@
 package lecture012
 
-import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Keep, Sink, Source}
 import akka.stream.{ActorMaterializer, FlowShape}
