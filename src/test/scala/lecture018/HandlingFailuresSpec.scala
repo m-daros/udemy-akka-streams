@@ -173,16 +173,14 @@ class HandlingFailuresSpec extends AnyFeatureSpec with GivenWhenThen {
 
       val flow = Flow [Int].scan [Int] ( 0 ) ( ( a: Int, b: Int ) => a + b )
 
-      val sink = Sink.actorRef ( testProbe.ref, "probe" )
+      val probeSink = Sink.actorRef ( testProbe.ref, "probe" )
 
       When ( "I run the stream" )
-
-//      import actorSystem.dispatcher
 
       source
         .log ( "restartingSource" )
         .via ( flow )
-        .to ( sink )
+        .to ( probeSink )
         .run ()
 
       Then ( "I expect it restart after failure with an exponetial backoggthe sum is 445" )
