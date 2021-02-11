@@ -7,8 +7,6 @@ import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpec
 
-import scala.concurrent.duration.DurationInt
-
 
 class PublishSubscribeSpec extends AnyFeatureSpec with GivenWhenThen {
 
@@ -41,29 +39,30 @@ class PublishSubscribeSpec extends AnyFeatureSpec with GivenWhenThen {
       val sinkProbe1 = TestSink.probe [String]
       val sinkProbe2 = TestSink.probe [Int]
 
-      val c1 = subscriberPort.toMat ( sinkProbe1 ) ( Keep.right ).run ()
-      val c2 = subscriberPort.map ( word => word.length ).toMat ( sinkProbe2 ) ( Keep.right ).run ()
+      val testSink1 = subscriberPort.toMat ( sinkProbe1 ) ( Keep.right ).run ()
+      val testSink2 = subscriberPort.map ( word => word.length ).toMat ( sinkProbe2 ) ( Keep.right ).run ()
 
-      val a1 = sourceProbe1.toMat ( publisherPort ) ( Keep.left ).run ()
-      val a2 = sourceProbe2.toMat ( publisherPort ) ( Keep.left ).run ()
-      val a3 = sourceProbe3.toMat ( publisherPort ) ( Keep.left ).run ()
+      val testSource1 = sourceProbe1.toMat ( publisherPort ) ( Keep.left ).run ()
+      val testSource2 = sourceProbe2.toMat ( publisherPort ) ( Keep.left ).run ()
+      val testSource3 = sourceProbe3.toMat ( publisherPort ) ( Keep.left ).run ()
 
-      // TODO send something via test sources and expect something using test sinks
-
-      a1.sendNext ( "Akka" )
+      // Generate some messages for the attached sources that are send to the publish / subscribe
+      testSource1.sendNext ( "Akka" )
         .sendNext ( "is" )
         .sendNext ( "awesome" )
         .sendComplete ()
 
-      a2.sendNext ( "I" )
+      testSource2.sendNext ( "I" )
         .sendNext ( "love" )
         .sendNext ( "Scala" )
         .sendComplete ()
 
-      a3.sendNext ( "Bye" )
+      testSource3.sendNext ( "Bye" )
         .sendComplete ()
 
-      c1.request ( 10 )
+      And ( "I expect all the messages collected by the publish / subscribe will reach all the subscribers" )
+
+      testSink1.request ( 10 )
         .expectNext ( "Akka" )
         .expectNext ( "is" )
         .expectNext ( "awesome" )
@@ -71,9 +70,8 @@ class PublishSubscribeSpec extends AnyFeatureSpec with GivenWhenThen {
         .expectNext ( "love" )
         .expectNext ( "Scala" )
         .expectNext ( "Bye" )
-//        .expectComplete ()
 
-      c2.request ( 10 )
+      testSink2.request ( 10 )
         .expectNext ( 4 )
         .expectNext ( 2 )
         .expectNext ( 7 )
@@ -81,8 +79,6 @@ class PublishSubscribeSpec extends AnyFeatureSpec with GivenWhenThen {
         .expectNext ( 4 )
         .expectNext ( 5 )
         .expectNext ( 3 )
-//        .expectComplete ()
     }
-
   }
 }
