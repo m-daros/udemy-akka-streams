@@ -1,13 +1,15 @@
 package lecture020
 
-import akka.Done
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{BroadcastHub, Sink, Source}
+import akka.stream.scaladsl.{BroadcastHub, Keep, RunnableGraph, Sink, Source}
+import akka.stream.testkit.scaladsl.TestSink
 import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpec
 
-import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+
 
 class BroadcastHubSpec extends AnyFeatureSpec with GivenWhenThen {
 
@@ -17,36 +19,28 @@ class BroadcastHubSpec extends AnyFeatureSpec with GivenWhenThen {
 
   Feature ( "BroadcastHub" ) {
 
-    Scenario ( "...." ) {
+    Scenario ( "Broadcast messages with a BroadcastHub" ) {
 
       Given ( "a BroadcastHub" )
 
-      val dynamicBroadcast = BroadcastHub.sink [Int]
-      val materializedsource = Source ( 1 to 20 ).runWith ( dynamicBroadcast )
+      val source = Source.tick ( 0 second, 1 second, 999 )
+      val broadcast = source.toMat ( BroadcastHub.sink ) ( Keep.right ).run ()
 
+      When ( "I attach some subscribers to it" )
 
-      When ( "...." )
+      val sinkProbe1 = TestSink.probe [Int]
+      val sinkProbe2 = TestSink.probe [Int]
 
-      val future1: Future [Done] = materializedsource
-        .runWith ( Sink.foreach [Int] ( n => println ( s"graph1 $n" ) ) )
+      val testSink1 = broadcast.toMat ( sinkProbe1 ) ( Keep.right ).run ()
+      val testSink2 = broadcast.toMat ( sinkProbe2 ) ( Keep.right ).run ()
 
-      val future2: Future [Done] = materializedsource
-        .runWith ( Sink.foreach [Int] ( n => println ( s"graph2 $n" ) ) )
+      Then ( "I expect all the messages broadcasted by BroadcastHub will reach all the subscribers" )
 
-      Then ( "...." )
+      testSink1.request ( 5 )
+        .expectNext ( 999, 999, 999, 999, 999 )
 
-      import actorSystem.dispatcher
-
-      future1.onComplete {
-
-        value => println ( value )
-      }
-
-      future2.onComplete {
-
-        value => println ( value )
-      }
+      testSink2.request ( 5 )
+        .expectNext ( 999, 999, 999, 999, 999 )
     }
-
   }
 }
