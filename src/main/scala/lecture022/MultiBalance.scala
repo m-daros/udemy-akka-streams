@@ -7,7 +7,7 @@ import akka.stream.scaladsl.{Balance, GraphDSL, Merge}
 
 object MultiBalance {
 
-  def buildMultiBalance [T] ( numInputs: Int, numOutputs: Int ): Graph [ MultiBalanceShape [T], NotUsed ] = {
+  def apply [T] ( numInputs: Int, numOutputs: Int ): Graph [ MultiBalanceShape [T], NotUsed ] = {
 
     GraphDSL.create () { implicit builder =>
 

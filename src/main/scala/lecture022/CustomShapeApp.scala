@@ -16,7 +16,7 @@ object CustomShapeApp extends App {
 
     GraphDSL.create () {  implicit builder =>
 
-      val multiBalance = MultiBalance.buildMultiBalance [Int] ( 3, 4 )
+      val multiBalance = MultiBalance [Int] ( 3, 4 )
 
       val source1 = builder.add ( Source ( 1 to 100 ).filter ( i => i % 2 == 0 ).throttle ( 5, 1 second ) )
       val source2 = builder.add ( Source ( 1 to 100 ).filter ( i => i % 2 == 1 ).throttle ( 5, 1 second ) )
@@ -46,7 +46,7 @@ object CustomShapeApp extends App {
 
     GraphDSL.create () {  implicit builder =>
 
-      val multiBalance = MultiBalance.buildMultiBalance [String] ( 2, 3 )
+      val multiBalance = MultiBalance [String] ( 2, 3 )
 
       val source1 = builder.add ( Source ( 1 to 100 ).filter ( i => i % 2 == 0 ).map ( i => "str-" + i ).throttle ( 5, 1 second ) )
       val source2 = builder.add ( Source ( 1 to 100 ).filter ( i => i % 2 == 1 ).map ( i => "str-" + i ).throttle ( 5, 1 second ) )
