@@ -34,15 +34,22 @@ class CustomFilterFlow [T] ( predicate: T => Boolean ) extends GraphStage [FlowS
 
         override def onPush (): Unit = {
 
-          val element = grab ( inPort )
+          try {
 
-          if ( predicate ( element ) ) {
+            val element = grab ( inPort )
 
-            push ( outPort, element ) // Let the element to pass
+            if ( predicate ( element ) ) {
+
+              push ( outPort, element ) // Let the element to pass
+            }
+            else {
+
+              pull ( inPort ) // Ask another element
+            }
           }
-          else {
+          catch {
 
-            pull ( inPort ) // Ask another element
+            case e: Throwable => failStage ( e )
           }
         }
       } )
