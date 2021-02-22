@@ -29,7 +29,7 @@ class Grouper [T] ( groupSize: Int ) extends GraphStage [SinkShape [T]] {
 
         override def onPush (): Unit = {
 
-          group.enqueue (grab ( inPort ) )
+          group.enqueue ( grab ( inPort ) )
 
           if ( group.size >= groupSize ) {
 
