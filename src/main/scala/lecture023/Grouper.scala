@@ -38,8 +38,17 @@ class Grouper [T] ( groupSize: Int ) extends GraphStage [SinkShape [T]] {
 
           pull ( inPort )
         }
-      } )
 
+        override def onUpstreamFinish (): Unit = {
+
+          if ( group.nonEmpty ) {
+
+            println ( "group: " + group.dequeueAll ( _ => true ).mkString ( "[", ", ", "]" ) )
+          }
+
+          println ( "The stream is terminated" )
+        }
+      } )
     }
   }
 }
